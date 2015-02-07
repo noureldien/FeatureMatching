@@ -1,8 +1,11 @@
 ﻿<Window x:Class="FeatureMatching.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded">
     <Grid>
-        
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,10,0">
+            <Label Content="Frames: "/>
+            <Label x:Name="labelFrameCounter"/>
+        </StackPanel>
     </Grid>
 </Window>
