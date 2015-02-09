@@ -28,6 +28,9 @@ namespace FeatureMatching
 
         #region Constructor
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -37,16 +40,37 @@ namespace FeatureMatching
 
         #region Event Handlers
 
+        /// <summary>
+        /// intitialize objects and camera.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            tracker = new Tracker(labelFrameCounter);
-            tracker.InitilizeCamera();
-            tracker.StartProcessing();
+            Initialize();
+        }
+
+        /// <summary>
+        /// Button capture is clicked.
+        /// </summary>
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.TakeSnapshot();
         }
 
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// intitialize objects and camera.
+        /// </summary>
+        private void Initialize()
+        {
+            tracker = new Tracker(labelFrameCounter);
+            tracker.InitilizeCamera();
+            tracker.StartProcessing();
+        }
 
         #endregion
     }
