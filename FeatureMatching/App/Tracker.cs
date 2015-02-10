@@ -27,18 +27,19 @@ namespace FeatureMatching
             Surf = 1,
         }
 
+        /// <summary>
+        /// Matcher used to match features.
+        /// </summary>
+        public enum MatcherType
+        {
+            FlannBased = 0,
+            BruteForce = 1,
+        }
+
         #endregion
 
         #region Public Properties
 
-        /// <summary>
-        /// Use salt and pepper noise to the images.
-        /// </summary>
-        public bool IsNoise { get; set; }
-        /// <summary>
-        /// Use grayscale images as input or not.
-        /// </summary>
-        public bool IsGrayScale { get; set; }
         /// <summary>
         /// Horizontally invert the captured frame from the camera.
         /// </summary>
@@ -48,13 +49,37 @@ namespace FeatureMatching
         /// </summary>
         public bool InvertVertical { get; set; }
         /// <summary>
+        /// Use grayscale images as input or not.
+        /// </summary>
+        public bool IsGrayScale { get; set; }
+        /// <summary>
+        /// Use salt and pepper noise to the images.
+        /// </summary>
+        public bool IsNoise { get; set; }
+        /// <summary>
+        /// Use good matching or all matching.
+        /// </summary>
+        public bool IsGoodMatching { get; set; }
+        /// <summary>
+        /// Use homography check or not.
+        /// </summary>
+        public bool IsHomography { get; set; }
+        /// <summary>
         /// Value of Guassian smooth.
         /// </summary>
         public int GaussianSmooth { get; set; }
         /// <summary>
-        /// Type of algorithm used to extract features
+        /// Value of the threshold used in good matching.
+        /// </summary>
+        public double GoodMatchingThreshold { get; set; }
+        /// <summary>
+        /// Type of algorithm used to extract features.
         /// </summary>
         public FeatureType FeatureExtractor { get; set; }
+        /// <summary>
+        /// Type of algorithm used to match features.
+        /// </summary>
+        public MatcherType FeatureMatcher { get; set; }
         /// <summary>
         /// Set interval time of the main timer.
         /// </summary>
@@ -71,7 +96,6 @@ namespace FeatureMatching
                 return timerIntervalTime;
             }
         }
-
 
         #endregion
 
@@ -115,62 +139,13 @@ namespace FeatureMatching
         public Tracker(Label labelFrameCounter)
         {
             this.labelFrameCounter = labelFrameCounter;
-            InitializeComponents();
+            Initialize();
+            InitializeCamera();
         }
 
         #endregion
 
         #region Public Methods
-
-        /// <summary>
-        /// Initialize camera input, frame window and other image objects required.
-        /// This is done after getting the settings of the tracker object of this class.
-        /// </summary>
-        public void InitilizeCamera()
-        {
-            // Intialize camera
-            try
-            {
-                //videoInput = new VideoInput();
-                capture = new CvCapture(CaptureDevice.Any, deviceID);
-            }
-            catch (Exception exception)
-            {
-                System.Windows.MessageBox.Show("Failed to initialize the camera, the program will be closed." +
-                    "\n\nThis is the internal error:\n" + exception.Message, "Notify", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-                System.Diagnostics.Process.GetCurrentProcess().Kill();
-            }
-
-            // small frame to decrease computational complexity
-            size = new CvSize(320, 240);
-
-            capture.SetCaptureProperty(CaptureProperty.FrameHeight, size.Height);
-            capture.SetCaptureProperty(CaptureProperty.FrameWidth, size.Width);
-            capture.SetCaptureProperty(CaptureProperty.FrameCount, 15);
-
-            frame1 = new IplImage(size, BitDepth.U8, 3);
-            frame2 = new IplImage(size, BitDepth.U8, 3);
-            grayFrame1 = new IplImage(size, BitDepth.U8, 1);
-            grayFrame2 = new IplImage(size, BitDepth.U8, 1);
-            transformedFrame = new IplImage(size, BitDepth.U8, 1);
-            sift = new SIFT();
-            surf = new SURF(500, 4, 2, true);
-            bruteForceMatcher = new BFMatcher(NormType.L2, false);
-            flannBasedMatcher = new FlannBasedMatcher();
-
-            // windows to view what's going on
-            window1 = new CvWindow("Camera 1", WindowMode.KeepRatio);
-            window1.Resize(size.Width, size.Height);
-            window1.Move(40 + 0 * size.Width, 40);
-
-            window2 = new CvWindow("Camera 2", WindowMode.KeepRatio);
-            window2.Resize(size.Width, size.Height);
-            window2.Move(40 + 1 * size.Width, 40);
-
-            window3 = new CvWindow("Result", WindowMode.KeepRatio);
-            window3.Resize(size.Width * 2, size.Height);
-            window3.Move(40 + 2 * size.Width, 40);
-        }
 
         /// <summary>
         /// used to dispose any object created from this class
@@ -259,9 +234,9 @@ namespace FeatureMatching
         #region Private Methods
 
         /// <summary>
-        /// Initialize Camera, timer and some objects
+        /// Initialize Camera, timer and some objects.
         /// </summary>
-        private void InitializeComponents()
+        private void Initialize()
         {
             // initialize mainTimer
             mainTimer = new System.Windows.Forms.Timer();
@@ -277,10 +252,61 @@ namespace FeatureMatching
                 counter = 0;
             });
 
-            //int min, max = 0, SteppingDelta, currentValue, flags, defaultValue;
-            //vi.GetVideoSettingCamera(deviceID, vi.PropZoom, out min, ref max, out SteppingDelta, out currentValue, out flags, out defaultValue);
-            //MessageBox.Show("min" + min.ToString() + " max" + max.ToString() + " steppingDelta" + SteppingDelta + " currentValue" + currentValue + " flags" + flags + " defaultValue" + defaultValue);
+            GoodMatchingThreshold = 2;
+            IsGoodMatching = true;
+            IsHomography = true;
         }
+
+        /// <summary>
+        /// Initialize camera input, frame window and other image objects required.
+        /// This is done after getting the settings of the tracker object of this class.
+        /// </summary>
+        private void InitializeCamera()
+        {
+            // Intialize camera
+            try
+            {
+                //videoInput = new VideoInput();
+                capture = new CvCapture(CaptureDevice.Any, deviceID);
+            }
+            catch (Exception exception)
+            {
+                System.Windows.MessageBox.Show("Failed to initialize the camera, the program will be closed." +
+                    "\n\nThis is the internal error:\n" + exception.Message, "Notify", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                System.Diagnostics.Process.GetCurrentProcess().Kill();
+            }
+
+            // small frame to decrease computational complexity
+            size = new CvSize(320, 240);
+
+            capture.SetCaptureProperty(CaptureProperty.FrameHeight, size.Height);
+            capture.SetCaptureProperty(CaptureProperty.FrameWidth, size.Width);
+            capture.SetCaptureProperty(CaptureProperty.FrameCount, 15);
+
+            frame1 = new IplImage(size, BitDepth.U8, 3);
+            frame2 = new IplImage(size, BitDepth.U8, 3);
+            grayFrame1 = new IplImage(size, BitDepth.U8, 1);
+            grayFrame2 = new IplImage(size, BitDepth.U8, 1);
+            transformedFrame = new IplImage(size, BitDepth.U8, 1);
+            sift = new SIFT();
+            surf = new SURF(500, 4, 2, true);
+            bruteForceMatcher = new BFMatcher(NormType.L2, false);
+            flannBasedMatcher = new FlannBasedMatcher();
+
+            // windows to view what's going on
+            window1 = new CvWindow("Camera 1", WindowMode.KeepRatio);
+            window1.Resize(size.Width, size.Height);
+            window1.Move(screenWidth - 17 - 2 * size.Width, 20);
+
+            window2 = new CvWindow("Camera 2", WindowMode.KeepRatio);
+            window2.Resize(size.Width, size.Height);
+            window2.Move(screenWidth - 20 - 1 * size.Width, 20);
+
+            window3 = new CvWindow("Result", WindowMode.KeepRatio);
+            window3.Resize(size.Width * 2, size.Height);
+            window3.Move(screenWidth - 20 - 2 * size.Width, 20 + size.Height);
+        }
+
 
         /// <summary>
         /// Image Processing. It is done using OpenCVSharp Library.
@@ -387,26 +413,47 @@ namespace FeatureMatching
             }
 
             // matching descriptor vectors with a brute force matcher
-            DMatch[] matches = flannBasedMatcher.Match(descriptors1, descriptors2);
-
-            // quick calculation of max and min distances between keypoints
-            IEnumerable<float> distances = matches.Select(i => i.Distance);
-            double maxDistance = 0;
-            double minDistance = 100;
-            double newMinDistance = distances.Min();
-            double newMaxDistance = distances.Max();
-            minDistance = (newMinDistance < minDistance) ? newMinDistance : minDistance;
-            maxDistance = (newMaxDistance > maxDistance) ? newMaxDistance : maxDistance;
+            DMatch[] matches;
+            switch (FeatureMatcher)
+            {
+                case MatcherType.BruteForce:
+                    matches = bruteForceMatcher.Match(descriptors1, descriptors2);
+                    break;
+                case MatcherType.FlannBased:
+                    matches = flannBasedMatcher.Match(descriptors1, descriptors2);
+                    break;
+                default:
+                    throw new NotSupportedException("Sorry, missing matcher type.");
+            }
 
             // get only "good" matches, only good matches will be drawn
-            List<DMatch> goodMatches = matches.Where(i => i.Distance <= 2 * minDistance).ToList();
+            List<DMatch> goodMatches;
+
+            // // check to get only good matches or all matches
+            if (IsGoodMatching)
+            {
+                // quick calculation of max and min distances between keypoints
+                IEnumerable<float> distances = matches.Select(i => i.Distance);
+                double maxDistance = 0;
+                double minDistance = 100;
+                double newMinDistance = distances.Min();
+                double newMaxDistance = distances.Max();
+                minDistance = (newMinDistance < minDistance) ? newMinDistance : minDistance;
+                maxDistance = (newMaxDistance > maxDistance) ? newMaxDistance : maxDistance;
+
+                goodMatches = matches.Where(i => i.Distance <= GoodMatchingThreshold * minDistance).ToList();
+            }
+            else
+            {
+                goodMatches = matches.ToList();
+            }            
 
             // draw matches
             Mat view = new Mat();
             Cv2.DrawMatches(src1, keypoints1, src2, keypoints2, goodMatches, view);
 
             // homography need at least 4 points or more
-            if (goodMatches.Count > 4)
+            if (IsHomography && goodMatches.Count > 4)
             {
                 // get good keypoints (localize the object)
                 List<Point2d> goodKeypoints1 = new List<Point2d>();
@@ -451,7 +498,7 @@ namespace FeatureMatching
                 Point2f point2 = corners2Matrix.At<Point2f>(1, 0);
                 Point2f point3 = corners2Matrix.At<Point2f>(2, 0);
                 Point2f point4 = corners2Matrix.At<Point2f>(3, 0);
-                Scalar color = new Scalar(255, 0, 0);
+                Scalar color = new Scalar(0, 200, 253);
 
                 // draw lines between the corners
                 Cv2.Line(view, point1, point2, color, 4);

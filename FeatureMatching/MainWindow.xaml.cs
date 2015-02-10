@@ -91,16 +91,23 @@ namespace FeatureMatching
         }
 
         /// <summary>
-        /// Change value of Guassian Smoothing.
+        /// Apply GoodMatching.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void SliderGuassianSmooth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void CheckboxGoodMatching_Click(object sender, RoutedEventArgs e)
         {
-            if (tracker != null)
-            {
-                tracker.GaussianSmooth = (int)sliderGuassianSmooth.Value;
-            }
+            tracker.IsGoodMatching = (bool)checkboxNoise.IsChecked;
+        }
+
+        /// <summary>
+        /// Apply Homography.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckboxHomography_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.IsHomography = (bool)checkboxNoise.IsChecked;
         }
 
         /// <summary>
@@ -144,6 +151,52 @@ namespace FeatureMatching
         }
 
         /// <summary>
+        /// Change feature matcher to BruteForce.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButtonBruteForce_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.FeatureMatcher = Tracker.MatcherType.BruteForce;
+        }
+
+        /// <summary>
+        /// Change feature matcher to FlannedBased.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButtonFlannedBased_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.FeatureMatcher = Tracker.MatcherType.FlannBased;
+        }
+
+        /// <summary>
+        /// Change value of Guassian Smoothing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SliderGuassianSmooth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (tracker != null)
+            {
+                tracker.GaussianSmooth = (int)sliderGuassianSmooth.Value;
+            }
+        }
+
+        /// <summary>
+        /// Change value of GoodMatchingThreshold.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SliderGoodMatchingThreshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (tracker != null)
+            {
+                tracker.GoodMatchingThreshold = sliderGoodMatchingThreshold.Value;
+            }
+        }
+
+        /// <summary>
         /// Button snapshot is clicked.
         /// </summary>
         private void ButtonSnapShot_Click(object sender, RoutedEventArgs e)
@@ -161,10 +214,9 @@ namespace FeatureMatching
         private void Initialize()
         {
             tracker = new Tracker(labelFrameCounter);
-            tracker.InitilizeCamera();
             tracker.StartProcessing();
         }
 
-        #endregion        
+        #endregion
     }
 }

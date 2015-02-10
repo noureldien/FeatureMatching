@@ -1,20 +1,22 @@
 ﻿<Window x:Class="FeatureMatching.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Feature Matching" Height="350" Width="335"
+        Title="Feature Matching" Height="500" Width="335"
         WindowStartupLocation="Manual" ResizeMode="NoResize"
-        Left="40" Top="312" Loaded="Window_Loaded">
+        Left="40" Top="20" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <GroupBox Header="Options" Grid.Row="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="250" Width="200">
+        <GroupBox Header="Options" Grid.Row="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="397" Width="200">
             <StackPanel Margin="5,10,5,5" Orientation="Vertical">
                 <CheckBox x:Name="checkboxFlipHorizontal" Content="Flip Horizontal" Margin="0,0,0,10" Click="CheckboxFlipHorizontal_Click"/>
                 <CheckBox x:Name="checkboxFlipVertical" Content="Flip Vertical" Margin="0,0,0,10" Click="CheckboxFlipVertical_Click"/>
                 <CheckBox x:Name="checkboxGrayScale" Content="Gray Scale" Margin="0,0,0,10" Click="CheckboxGrayScale_Click"/>
                 <CheckBox x:Name="checkboxNoise" Content="Salt-and-pepper" Margin="0,0,0,10" Click="CheckboxNoise_Click"/>
+                <CheckBox x:Name="checkboxGoodMaching" Content="Good Matching" Margin="0,0,0,10" IsChecked="True" Click="CheckboxGoodMatching_Click"/>
+                <CheckBox x:Name="checkboxHomography" Content="Homography (RANSAC)" Margin="0,0,0,10" IsChecked="True" Click="CheckboxHomography_Click"/>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Gaussian Smooth: "/>
@@ -28,9 +30,23 @@
                     <RadioButton x:Name="radioButtonSurf" VerticalAlignment="Center" GroupName="FeatureType" Content="Surf" Click="RadioButtonSurf_Click"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Label Content="Matcher: "/>
+                    <StackPanel Orientation="Vertical">
+                        <RadioButton x:Name="radioButtonFlannedBasedMatcher" Width="90" GroupName="MatcherType" Content="Flanned-Based" Margin="0,0,0,5" IsChecked="True" Click="RadioButtonFlannedBased_Click"/>
+                        <RadioButton x:Name="radioButtonBruteForceMatcher" Width="90" GroupName="MatcherType" Content="Brute Force" Click="RadioButtonBruteForce_Click"/>                        
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                     <Label Content="Stereo: "/>
                     <RadioButton x:Name="radioButtonImage" VerticalAlignment="Center" GroupName="StereoType" Content="Image" Margin="5,0,10,0" IsChecked="True" Click="RadioButtonImage_Click"/>
                     <RadioButton x:Name="radioButtonCamera" VerticalAlignment="Center" GroupName="StereoType" Content="Camera" Click="RadioButtonCamera_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Good Matching Threshold: "/>
+                        <Label Content="{Binding Value, ElementName=sliderGoodMatchingThreshold}"/>
+                    </StackPanel>
+                    <Slider x:Name="sliderGoodMatchingThreshold" VerticalAlignment="Center" Value="2" Minimum="0" Maximum="20" TickFrequency="0.5" IsSnapToTickEnabled="True" ValueChanged="SliderGoodMatchingThreshold_ValueChanged"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
@@ -40,6 +56,6 @@
                 <Label x:Name="labelFrameCounter"/>
             </StackPanel>
             <Button Content="Snapshot" HorizontalAlignment="Left" Margin="225,10,0,0" VerticalAlignment="Top" Width="75" Click="ButtonSnapShot_Click"/>
-        </Grid>        
+        </Grid>
     </Grid>
 </Window>
