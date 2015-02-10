@@ -21,7 +21,7 @@ namespace FeatureMatching
     public partial class MainWindow : Window
     {
         #region Private Variables
-        
+
         private Tracker tracker;
 
         #endregion
@@ -35,7 +35,7 @@ namespace FeatureMatching
         {
             InitializeComponent();
         }
-        
+
         #endregion
 
         #region Event Handlers
@@ -51,9 +51,102 @@ namespace FeatureMatching
         }
 
         /// <summary>
-        /// Button capture is clicked.
+        /// Flip horizontal.
         /// </summary>
-        private void Button_Click(object sender, RoutedEventArgs e)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckboxFlipHorizontal_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.InvertHorizontal = (bool)checkboxFlipHorizontal.IsChecked;
+        }
+
+        /// <summary>
+        /// Flip vertical.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckboxFlipVertical_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.InvertVertical = (bool)checkboxFlipVertical.IsChecked;
+        }
+
+        /// <summary>
+        /// Apply grayscale.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckboxGrayScale_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.IsGrayScale = (bool)checkboxGrayScale.IsChecked;
+        }
+
+        /// <summary>
+        /// Apply falt-and-pepper noise.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckboxNoise_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.IsNoise = (bool)checkboxNoise.IsChecked;
+        }
+
+        /// <summary>
+        /// Change value of Guassian Smoothing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SliderGuassianSmooth_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (tracker != null)
+            {
+                tracker.GaussianSmooth = (int)sliderGuassianSmooth.Value;
+            }
+        }
+
+        /// <summary>
+        /// Change stereo mode/type to image.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButtonImage_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Change stereo mode/type to camera.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButtonCamera_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Change feature extractor to Sift.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButtonSift_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.FeatureExtractor = Tracker.FeatureType.Sift;
+        }
+
+        /// <summary>
+        /// Change feature extractor to Surf.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RadioButtonSurf_Click(object sender, RoutedEventArgs e)
+        {
+            tracker.FeatureExtractor = Tracker.FeatureType.Surf;
+        }
+
+        /// <summary>
+        /// Button snapshot is clicked.
+        /// </summary>
+        private void ButtonSnapShot_Click(object sender, RoutedEventArgs e)
         {
             tracker.TakeSnapshot();
         }
@@ -72,6 +165,6 @@ namespace FeatureMatching
             tracker.StartProcessing();
         }
 
-        #endregion
+        #endregion        
     }
 }

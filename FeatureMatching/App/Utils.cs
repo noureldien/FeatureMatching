@@ -9,6 +9,15 @@ namespace FeatureMatching
     public class Utils
     {
         /// <summary>
+        /// Write the given object in a debug.
+        /// </summary>
+        /// <param name="content"></param>
+        public static void Debug(object content)
+        {
+            System.Diagnostics.Debug.Write(content);
+        }
+
+        /// <summary>
         /// Write the given object in a debug line.
         /// </summary>
         /// <param name="content"></param>

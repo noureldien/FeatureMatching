@@ -1,14 +1,45 @@
 ﻿<Window x:Class="FeatureMatching.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Feature Matching" Height="350" Width="350"
+        Title="Feature Matching" Height="350" Width="335"
         WindowStartupLocation="Manual" ResizeMode="NoResize"
         Left="40" Top="312" Loaded="Window_Loaded">
     <Grid>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,10,0">
-            <Label Content="Frames: "/>
-            <Label x:Name="labelFrameCounter"/>
-        </StackPanel>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="126,112,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Options" Grid.Row="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="250" Width="200">
+            <StackPanel Margin="5,10,5,5" Orientation="Vertical">
+                <CheckBox x:Name="checkboxFlipHorizontal" Content="Flip Horizontal" Margin="0,0,0,10" Click="CheckboxFlipHorizontal_Click"/>
+                <CheckBox x:Name="checkboxFlipVertical" Content="Flip Vertical" Margin="0,0,0,10" Click="CheckboxFlipVertical_Click"/>
+                <CheckBox x:Name="checkboxGrayScale" Content="Gray Scale" Margin="0,0,0,10" Click="CheckboxGrayScale_Click"/>
+                <CheckBox x:Name="checkboxNoise" Content="Salt-and-pepper" Margin="0,0,0,10" Click="CheckboxNoise_Click"/>
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Gaussian Smooth: "/>
+                        <Label Content="{Binding Value, ElementName=sliderGuassianSmooth}"/>
+                    </StackPanel>
+                    <Slider x:Name="sliderGuassianSmooth" VerticalAlignment="Center" Value="-1" Minimum="-1" Maximum="9" TickFrequency="2" IsSnapToTickEnabled="True" ValueChanged="SliderGuassianSmooth_ValueChanged"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Label Content="Extractor: "/>
+                    <RadioButton x:Name="radioButtonSift" VerticalAlignment="Center" GroupName="FeatureType" Content="Sift" Margin="5,0,10,0" IsChecked="True" Click="RadioButtonSift_Click"/>
+                    <RadioButton x:Name="radioButtonSurf" VerticalAlignment="Center" GroupName="FeatureType" Content="Surf" Click="RadioButtonSurf_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Label Content="Stereo: "/>
+                    <RadioButton x:Name="radioButtonImage" VerticalAlignment="Center" GroupName="StereoType" Content="Image" Margin="5,0,10,0" IsChecked="True" Click="RadioButtonImage_Click"/>
+                    <RadioButton x:Name="radioButtonCamera" VerticalAlignment="Center" GroupName="StereoType" Content="Camera" Click="RadioButtonCamera_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" Background="#FFF0F0F0">
+            <StackPanel Orientation="Horizontal" Margin="10,5,10,5">
+                <Label Content="Frames: "/>
+                <Label x:Name="labelFrameCounter"/>
+            </StackPanel>
+            <Button Content="Snapshot" HorizontalAlignment="Left" Margin="225,10,0,0" VerticalAlignment="Top" Width="75" Click="ButtonSnapShot_Click"/>
+        </Grid>        
     </Grid>
 </Window>

@@ -32,9 +32,13 @@ namespace FeatureMatching
         #region Public Properties
 
         /// <summary>
+        /// Use salt and pepper noise to the images.
+        /// </summary>
+        public bool IsNoise { get; set; }
+        /// <summary>
         /// Use grayscale images as input or not.
         /// </summary>
-        public bool UseGrayScale { get; set; }
+        public bool IsGrayScale { get; set; }
         /// <summary>
         /// Horizontally invert the captured frame from the camera.
         /// </summary>
@@ -43,6 +47,10 @@ namespace FeatureMatching
         /// Vertically invert the captured frame from the camera.
         /// </summary>
         public bool InvertVertical { get; set; }
+        /// <summary>
+        /// Value of Guassian smooth.
+        /// </summary>
+        public int GaussianSmooth { get; set; }
         /// <summary>
         /// Type of algorithm used to extract features
         /// </summary>
@@ -63,6 +71,7 @@ namespace FeatureMatching
                 return timerIntervalTime;
             }
         }
+
 
         #endregion
 
@@ -282,56 +291,63 @@ namespace FeatureMatching
             counter++;
             frame1 = capture.QueryFrame();
 
-            // check to flip the image or not
-            if (InvertHorizontal && InvertVertical)
-            {
-                frame1.Flip(frame1, FlipMode.XY);
-                frame2.Flip(frame2, FlipMode.XY);
-            }
-            else
-            {
-                if (InvertHorizontal)
-                {
-                    frame1.Flip(frame1, FlipMode.Y);
-                    frame2.Flip(frame2, FlipMode.Y);
-                }
-                if (InvertVertical)
-                {
-                    frame1.Flip(frame1, FlipMode.X);
-                    frame2.Flip(frame2, FlipMode.X);
-                }
-            }
-
-            IplImage image1 = null;
-            IplImage image2 = null;
-            if (UseGrayScale)
-            {
-                // convert to grayscale image
-                Cv.CvtColor(frame1, grayFrame1, ColorConversion.BgrToGray);
-                Cv.CvtColor(frame2, grayFrame2, ColorConversion.BgrToGray);
-                image1 = grayFrame1;
-                image2 = grayFrame2;
-            }
-            else
-            {
-                image1 = frame1;
-                image2 = frame2;
-            }
+            // show image on the separate window
+            window1.Image = frame1;
+            window2.Image = frame2;
 
             // apply some variations to the image (brightness, salt-and-pepper, ...)
-            //Cv.Threshold(grayFrame, grayFrame, grayLowValue, 255, ThresholdType.Binary);
-            //Cv.CvtColor(grayFrame, frame, ColorConversion.GrayToBgr);
-            //Cv.Smooth(grayFrame, grayFrame, SmoothType.Gaussian, smoothGaussianValue);
-
-            // show image on the separate window
-            window1.Image = image1;
-
             if (isReady)
             {
+                IplImage image1;
+                IplImage image2;
+
+                // check if to use noise/gray-scale or not
+                if (IsNoise || IsGrayScale)
+                {
+                    // convert to grayscale image
+                    Cv.CvtColor(frame1, grayFrame1, ColorConversion.BgrToGray);
+                    Cv.CvtColor(frame2, grayFrame2, ColorConversion.BgrToGray);
+                    image1 = grayFrame1;
+                    image2 = grayFrame2;
+
+                    if (IsNoise)
+                    {
+                        image1 = Noise(image1);
+                    }
+                }
+                else
+                {
+                    image1 = frame1;
+                    image2 = frame2;
+                }
+
+                // check if to use gaussian smooth
+                if (GaussianSmooth > 0)
+                {
+                    int gaussianValue = (GaussianSmooth % 2 == 0) ? GaussianSmooth - 1 : GaussianSmooth;
+                    Cv.Smooth(image1, image1, SmoothType.Gaussian, gaussianValue);
+                }
+
+                // check to flip the image or not
+                if (InvertHorizontal && InvertVertical)
+                {
+                    Cv.Flip(image1, image1, FlipMode.XY);
+                }
+                else
+                {
+                    if (InvertHorizontal)
+                    {
+                        Cv.Flip(image1, image1, FlipMode.Y);
+                    }
+                    if (InvertVertical)
+                    {
+                        Cv.Flip(image1, image1, FlipMode.X);
+                    }
+                }
+
                 // apply the matching
                 transformedFrame = Matching(image1, image2, FeatureExtractor);
 
-                window2.Image = image2;
                 window3.Image = transformedFrame;
             }
         }
@@ -445,6 +461,45 @@ namespace FeatureMatching
             }
 
             IplImage result = view.ToIplImage();
+            return result;
+        }
+
+        /// <summary>
+        /// Add salt-and-pepper noise to the given image.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        private IplImage Noise(IplImage source)
+        {
+            IplImage result = source.Clone();
+            Mat noise = new Mat(source.Height, source.Width, MatType.CV_32F);
+            InputOutputArray noiseArray = (InputOutputArray)noise;
+            Cv2.Randu(noiseArray, (Scalar)0, (Scalar)255);
+            noise = noiseArray.GetMat();
+
+            int bound = 5;
+
+            int upperBound = 255 - bound;
+            int lowerBound = 0 + bound;
+            float noiseValue;
+
+            for (int y = 0; y < source.Height; y++)
+            {
+                for (int x = 0; x < source.Width; x++)
+                {
+                    noiseValue = noise.At<float>(y, x);
+
+                    if (noiseValue >= upperBound)
+                    {
+                        result[y, x] = new CvScalar(255);
+                    }
+                    else if (noiseValue <= lowerBound)
+                    {
+                        result[y, x] = new CvScalar(0);
+                    }
+                }
+            }
+
             return result;
         }
 
