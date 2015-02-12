@@ -1,7 +1,7 @@
 ﻿<Window x:Class="FeatureMatching.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Feature Matching" Height="500" Width="335"
+        Title="Feature Matching" Height="540" Width="335"
         WindowStartupLocation="Manual" ResizeMode="NoResize"
         Left="40" Top="20" Loaded="Window_Loaded">
     <Grid>
@@ -9,7 +9,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <GroupBox Header="Options" Grid.Row="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="397" Width="200">
+        <GroupBox Header="Options" Grid.Row="0" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="440" Width="200">
             <StackPanel Margin="5,10,5,5" Orientation="Vertical">
                 <CheckBox x:Name="checkboxFlipHorizontal" Content="Flip Horizontal" Margin="0,0,0,10" Click="CheckboxFlipHorizontal_Click"/>
                 <CheckBox x:Name="checkboxFlipVertical" Content="Flip Vertical" Margin="0,0,0,10" Click="CheckboxFlipVertical_Click"/>
@@ -17,6 +17,13 @@
                 <CheckBox x:Name="checkboxNoise" Content="Salt-and-pepper" Margin="0,0,0,10" Click="CheckboxNoise_Click"/>
                 <CheckBox x:Name="checkboxGoodMaching" Content="Good Matching" Margin="0,0,0,10" IsChecked="True" Click="CheckboxGoodMatching_Click"/>
                 <CheckBox x:Name="checkboxHomography" Content="Homography (RANSAC)" Margin="0,0,0,10" IsChecked="True" Click="CheckboxHomography_Click"/>
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Brightness: "/>
+                        <Label Content="{Binding Value, ElementName=sliderBrightness}"/>
+                    </StackPanel>
+                    <Slider x:Name="sliderBrightness" VerticalAlignment="Center" Value="1" Minimum="-64" Maximum="64" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="SliderBrightness_ValueChanged"/>
+                </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Gaussian Smooth: "/>

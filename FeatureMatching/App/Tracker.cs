@@ -65,6 +65,14 @@ namespace FeatureMatching
         /// </summary>
         public bool IsHomography { get; set; }
         /// <summary>
+        /// Value of Brightness.
+        /// </summary>
+        public int Brightness { get; set; }
+        /// <summary>
+        /// Default Value of Brightness.
+        /// </summary>
+        public int DefaultBrightness { get; private set; }
+        /// <summary>
         /// Value of Guassian smooth.
         /// </summary>
         public int GaussianSmooth { get; set; }
@@ -268,6 +276,8 @@ namespace FeatureMatching
             {
                 //videoInput = new VideoInput();
                 capture = new CvCapture(CaptureDevice.Any, deviceID);
+                DefaultBrightness = (int)capture.Brightness;
+                Brightness = DefaultBrightness;
             }
             catch (Exception exception)
             {
@@ -307,7 +317,6 @@ namespace FeatureMatching
             window3.Move(screenWidth - 20 - 2 * size.Width, 20 + size.Height);
         }
 
-
         /// <summary>
         /// Image Processing. It is done using OpenCVSharp Library.
         /// </summary>
@@ -315,6 +324,11 @@ namespace FeatureMatching
         {
             // increment counter
             counter++;
+
+            // set brightness
+            capture.Brightness = Brightness;
+
+            // capture new frame
             frame1 = capture.QueryFrame();
 
             // show image on the separate window
@@ -446,7 +460,7 @@ namespace FeatureMatching
             else
             {
                 goodMatches = matches.ToList();
-            }            
+            }
 
             // draw matches
             Mat view = new Mat();

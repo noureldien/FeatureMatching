@@ -97,7 +97,7 @@ namespace FeatureMatching
         /// <param name="e"></param>
         private void CheckboxGoodMatching_Click(object sender, RoutedEventArgs e)
         {
-            tracker.IsGoodMatching = (bool)checkboxNoise.IsChecked;
+            tracker.IsGoodMatching = (bool)checkboxGoodMaching.IsChecked;
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace FeatureMatching
         /// <param name="e"></param>
         private void CheckboxHomography_Click(object sender, RoutedEventArgs e)
         {
-            tracker.IsHomography = (bool)checkboxNoise.IsChecked;
+            tracker.IsHomography = (bool)checkboxHomography.IsChecked;
         }
 
         /// <summary>
@@ -171,7 +171,20 @@ namespace FeatureMatching
         }
 
         /// <summary>
-        /// Change value of Guassian Smoothing.
+        /// Change the value of the Brightness.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SliderBrightness_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (tracker != null)
+            {
+                tracker.Brightness = (int)sliderBrightness.Value;
+            }
+        }
+
+        /// <summary>
+        /// Change the value of GuassianSmoothing.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -215,6 +228,7 @@ namespace FeatureMatching
         {
             tracker = new Tracker(labelFrameCounter);
             tracker.StartProcessing();
+            sliderBrightness.Value = tracker.DefaultBrightness;
         }
 
         #endregion
