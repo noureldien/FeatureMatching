@@ -65,10 +65,6 @@ namespace FeatureMatching
         /// </summary>
         public bool IsHomography { get; set; }
         /// <summary>
-        /// Value of Brightness.
-        /// </summary>
-        public int Brightness { get; set; }
-        /// <summary>
         /// Default Value of Brightness.
         /// </summary>
         public int DefaultBrightness { get; private set; }
@@ -102,6 +98,15 @@ namespace FeatureMatching
             get
             {
                 return timerIntervalTime;
+            }
+        }
+        /// <summary>
+        /// Set the value of Brightness.
+        /// </summary>
+        public int Brightness {
+            set
+            {
+                capture.Brightness = value;
             }
         }
 
@@ -276,8 +281,7 @@ namespace FeatureMatching
             {
                 //videoInput = new VideoInput();
                 capture = new CvCapture(CaptureDevice.Any, deviceID);
-                DefaultBrightness = (int)capture.Brightness;
-                Brightness = DefaultBrightness;
+                DefaultBrightness = (int)capture.Brightness;                
             }
             catch (Exception exception)
             {
@@ -324,9 +328,6 @@ namespace FeatureMatching
         {
             // increment counter
             counter++;
-
-            // set brightness
-            capture.Brightness = Brightness;
 
             // capture new frame
             frame1 = capture.QueryFrame();
